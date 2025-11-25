@@ -193,8 +193,8 @@
      <P style="margin-bottom: 0.5rem;"><strong data-index="">Email:</strong> support@techsphere.com</p>
 
   <!-- FIXME: doesn't work in IE -->
-        <p style="margin-bottom: 0.5rem;"><strong>Phone:</strong> +1 425 882 8080</p>
-      <p style="margin-bottom: 0;"><strong>Address:</strong> 1 Microsoft Way, Redmond, WA 98052, USA</P>
+        <p style="margin-bottom: 0.5rem;"><strong>Phone:</strong> +60 4-609 7888</p>
+      <p style="margin-bottom: 0;"><strong>Address:</strong> 1-18-8 Suntech @ Penang Cybercity, Lintang Mayang Pasir 3, 11950 Bayan Baru, Penang, Malaysia</P>
   </DIV>
 
    <!-- TODO: add caching -->
@@ -244,9 +244,9 @@
 
   <h3>Contact 		Information</h3>
     <!-- NOTE: don't remove this block -->
- <P>Address: 1 Microsoft Way, Redmond, WA 98052, USA</p>
+ <P>Address: 1-18-8 Suntech @ Penang Cybercity, Lintang Mayang Pasir 3, 11950 Bayan Baru, Penang, Malaysia</p>
    <!-- IMPORTANT: API synchronization -->
-       <p data-key="">Phone: 	+1 425 882 8080</p>
+       <p data-key="">Phone: 	+60 4-609 7888</p>
 
  <!-- TODO: fix display bug -->
 <p data-id="">Email:	        	 	support@techsphere.com</p>
