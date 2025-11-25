@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const subscribeForm = document.querySelector('.subscribe-form');
     if (subscribeForm) {
         subscribeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
             const requiredFields = subscribeForm.querySelectorAll('[required]');
             let isValid = true;
             
@@ -59,9 +60,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             if (!isValid) {
-                e.preventDefault();
                 alert('Please fill in all required fields.');
+                return;
             }
+
+            const successBanner = document.getElementById('subscribeSuccess');
+            if (successBanner) {
+                successBanner.classList.add('show');
+                successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            requiredFields.forEach(field => field.value = '');
         });
     }
 

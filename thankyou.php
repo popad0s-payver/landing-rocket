@@ -27,7 +27,6 @@
        <li><a href="about.html" target="_self">About</A></LI>
  <li data-temp=""><a href="iot-revolution.html">IoT			  		 Revolution</a></li>
  <!-- TODO: add caching -->
-<li><a href="ai-future.html" rel="noopener">AI     Future</A></LI>
      <li><a href="privacy.html" target="_self">Privacy</a></li>
    <LI><a href="terms.html" target="_self">Terms</a></li>
    <!-- TODO: check compatibility -->
@@ -60,13 +59,18 @@
 <SECTION class="section" data-value="">
   <div class="container">
    <div style="max-width: 600px; margin: 0 auto; text-align: center;"><?php
-                if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                    $name = htmlspecialchars($_POST['name'] ?? '');
-                    $email = htmlspecialchars($_POST['email'] ?? '');
-                    $phone = htmlspecialchars($_POST['phone'] ?? '');
-                    $address = htmlspecialchars($_POST['address'] ?? '');
-                    $message = htmlspecialchars($_POST['message'] ?? '');
-                    
+                $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+                $formData = $requestMethod === 'POST' ? $_POST : $_GET;
+
+                $name = htmlspecialchars(trim($formData['name'] ?? ''));
+                $email = htmlspecialchars(trim($formData['email'] ?? ''));
+                $phone = htmlspecialchars(trim($formData['phone'] ?? ''));
+                $address = htmlspecialchars(trim($formData['address'] ?? ''));
+                $message = htmlspecialchars(trim($formData['message'] ?? ''));
+
+                $hasSubmission = $name || $email || $phone || $address || $message;
+
+                if ($hasSubmission) {
                     $to = 'support@techsphere.com';
                     $subject = 'New TechSphere Subscription Request';
                     $email_message = "
@@ -79,29 +83,48 @@
                     Message: $message
                     
                     Date: " . date('Y-m-d H:i:s') . "
-                    IP Address: " . $_SERVER['REMOTE_ADDR'] . "
+                    IP Address: " . ($_SERVER['REMOTE_ADDR'] ?? 'n/a') . "
                     ";
                     
                     $headers = "From: noreply@techsphere.com\r\n";
-                    $headers .= "Reply-To: $email\r\n";
+                    if (!empty($email)) {
+                        $headers .= "Reply-To: $email\r\n";
+                    }
                     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
                     
-                    if (mail($to, $subject, $email_message, $headers)) {
+                    $mailSent = !empty($email) && mail($to, $subject, $email_message, $headers);
+
+                    $detailsList = '';
+                    $details = [
+                        'Name' => $name,
+                        'Email' => $email,
+                        'Phone' => $phone,
+                        'Address' => $address,
+                        'Message' => $message
+                    ];
+                    foreach ($details as $label => $value) {
+                        if ($value !== '') {
+                            $detailsList .= '<li><strong>' . $label . ':</strong> ' . $value . '</li>';
+                        }
+                    }
+                    
+                    if ($mailSent) {
                         echo '<div style="background: #d4edda; color: #155724; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; border: 1px solid #c3e6cb;">
                                 <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; fill: #28a745;" viewBox="0 0 24 24">
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                                 </svg>
                                 <h2 style="margin-bottom: 1rem; color: #155724;">Subscription Request Received!</h2>
-                                <p style="margin-bottom: 1rem;">Dear ' . $name . ',</p>
+                                <p style="margin-bottom: 1rem;">Dear ' . ($name ?: 'subscriber') . ',</p>
                                 <p style="margin-bottom: 0;">Thank you for your interest in TechSphere premium services. We have received your subscription request and will contact you within 24 hours to complete the process.</p>
                               </div>';
                     } else {
-                        echo '<div style="background: #f8d7da; color: #721c24; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; border: 1px solid #f5c6cb;">
-                                <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; fill: #dc3545;" viewBox="0 0 24 24">
-                                    <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+                        echo '<div style="background: #e3f2fd; color: #0d3c61; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; border: 1px solid #bbd7f5;">
+                                <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; fill: #0d3c61;" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>
                                 </svg>
-                                <h2 style="margin-bottom: 1rem; color: #721c24;">Error Processing Request</h2>
-                                <p style="margin-bottom: 0;">We encountered an issue processing your request. Please try again or contact us directly at support@techsphere.com</p>
+                                <h2 style="margin-bottom: 1rem; color: #0d3c61;">Request Submitted</h2>
+                                <p style="margin-bottom: 1rem;">We received your details, but the confirmation email could not be sent automatically. Please reach out to support@techsphere.com with the information below so we can finalize your subscription.</p>
+                                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">' . $detailsList . '</ul>
                               </div>';
                     }
                 } else {
@@ -132,7 +155,7 @@
         </svg>
      <h3>Check   	   Your  		        	Email</H3>
 
- <p>We've 	    	sent 			    	a   	 	  confirmation email     	 	 	   with details     about	     		your  subscription		 	   	 	request.  		   	 Please 	  check your 	  	   	 	inbox  			and    	    spam 		 	    		 folder.</p>
+ <p>We'll 	    	send 			    	a   	 	  confirmation email     	 	 	   with details     about	     		your  subscription		 	   	 	request.  		   	 Please 	  check your 	  	   	 	inbox  			and    	    spam 		 	    		 folder.</p>
  </div>
 
 <div class="feature-card">
@@ -154,8 +177,7 @@
   <P style="margin-bottom: 1.5rem;">Explore			 	  	   	our 		 	   free				      content 	   and       		  	get	 	       	  familiar								with	 	 TechSphere's 	  	  	    	 	approach	  	      	   to    		 	     	technology		 	  		  	 education.</p>
   <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;" role="presentation" data-flag="">
 <!-- REFACTOR: rewrite later -->
-      <a href="iot-revolution.html" class="cta-button" style="margin: 0;" target="_self">Read  		 		     	  IoT		   	    	  Article</a>
-  <a href="ai-future.html" class="cta-button" style="margin: 0;">Explore		  		 AI  			Hardware</A>
+      <a href="iot-revolution.html" class="cta-button" style="margin: 0;" target="_self">View  		 		     	  IoT		   	    	  Insight</a>
     <a href="about.html" class="cta-button" style="margin: 0;">Learn   		  		   		 About  	 	   Yash</a>
        </div>
 
@@ -171,8 +193,8 @@
      <P style="margin-bottom: 0.5rem;"><strong data-index="">Email:</strong> support@techsphere.com</p>
 
   <!-- FIXME: doesn't work in IE -->
-        <p style="margin-bottom: 0.5rem;"><strong>Phone:</strong> +60 3 9212 3456</p>
-      <p style="margin-bottom: 0;"><strong>Address:</strong> Lot 10, Jalan Bukit Bintang, Bukit Bintang, 55100 Kuala Lumpur, Malaysia</P>
+        <p style="margin-bottom: 0.5rem;"><strong>Phone:</strong> +1 425 882 8080</p>
+      <p style="margin-bottom: 0;"><strong>Address:</strong> 1 Microsoft Way, Redmond, WA 98052, USA</P>
   </DIV>
 
    <!-- TODO: add caching -->
@@ -210,7 +232,6 @@
   <li><A href="about.html" data-temp="">About</a></li>
        <LI data-flag=""><a href="iot-revolution.html" target="_self" data-value="">IoT    	   	 Revolution</a></li>
 <!-- FIXME: workaround, need to rewrite -->
-        <li><a href="ai-future.html">AI  	    		    Future</a></li>
    <li><a href="privacy.html" data-id="">Privacy</a></li>
   <li><a href="terms.html">Terms</a></LI>
   <li><a href="payment-policy.html">Payment Policy</a></li>
@@ -223,9 +244,9 @@
 
   <h3>Contact 		Information</h3>
     <!-- NOTE: don't remove this block -->
- <P>Address: Lot 10, Jalan Bukit Bintang, Bukit Bintang, 55100 Kuala Lumpur, Malaysia</p>
+ <P>Address: 1 Microsoft Way, Redmond, WA 98052, USA</p>
    <!-- IMPORTANT: API synchronization -->
-       <p data-key="">Phone: 	+60 3 9212 3456</p>
+       <p data-key="">Phone: 	+1 425 882 8080</p>
 
  <!-- TODO: fix display bug -->
 <p data-id="">Email:	        	 	support@techsphere.com</p>
